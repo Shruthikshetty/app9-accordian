@@ -22,25 +22,36 @@ export default function App() {
   );
 }
 
+//lifting up state
 function Accordion({ data }: { data: faqsType }) {
+  const [curOpen, setCurOpen] = useState<null | number>(null);
   return (
     <div className="accordion">
       {data.map((each, index) => (
         <AccordionItem
+          curOpen={curOpen}
+          onOpen={setCurOpen}
           title={each.title}
-          text={each.text}
           num={index}
           key={each.title}
-        />
+        >
+          {each.text}
+        </AccordionItem>
       ))}
     </div>
   );
 }
 
-function AccordionItem({ num, title, text }: AccordianItemProps) {
-  const [isOpen, setIsOpen] = useState(false);
+function AccordionItem({
+  num,
+  title,
+  children,
+  curOpen,
+  onOpen,
+}: AccordianItemProps) {
+  const isOpen = num === curOpen;
   function handleToggle() {
-    setIsOpen((s) => !s);
+    onOpen(isOpen ? null : num);
   }
 
   return (
@@ -48,7 +59,7 @@ function AccordionItem({ num, title, text }: AccordianItemProps) {
       <p className="number">{num < 9 ? `0${num + 1}` : num + 1}</p>
       <p className="title">{title}</p>
       <p className="icon">{isOpen ? `-` : `+`}</p>
-      {isOpen && <div className="content-box">{text}</div>}
+      {isOpen && <div className="content-box">{children}</div>}
     </div>
   );
 }
@@ -56,7 +67,9 @@ function AccordionItem({ num, title, text }: AccordianItemProps) {
 type AccordianItemProps = {
   num: number;
   title: string;
-  text: string;
+  children: React.ReactNode;
+  onOpen: React.Dispatch<React.SetStateAction<number | null>>;
+  curOpen: null | number;
 };
 
 type faqsType = {
